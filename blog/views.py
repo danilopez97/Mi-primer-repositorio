@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from .models import publicacion
 from django.utils import timezone
 from django.shortcuts import render, get_object_or_404
@@ -20,7 +19,6 @@ def post_new(request):
             if form.is_valid():
                 post = form.save(commit=False)
                 post.autor = request.user
-
                 post.save()
                 return redirect('detalle', pk=post.pk)
         else:
@@ -28,18 +26,23 @@ def post_new(request):
         return render(request, 'blog/post_edit.html', {'form': form})
 
 def post_edit(request, pk):
-        post = get_object_or_404(publicacion, pk=pk)
-        if request.method == "POST":
-            form = PostForm(request.POST, instance=post)
-            if form.is_valid():
-                post = form.save(commit=False)
-                post.autor = request.user
-                post.save()
-                return redirect('detalle', pk=post.pk)
-        else:
-            form = PostForm(instance=post)
+    post = get_object_or_404(publicacion, pk=pk)
+    if request.method == "POST":
+        form = PostForm(request.POST, instance=post)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.autor = request.user
+            post.save()
+            return redirect('detalle', pk=post.pk)
+    else:
+        form = PostForm(instance=post)
         return render(request, 'blog/post_edit.html', {'form': form})
 
 def post_draft_list(request):
     posts = publicacion.objects.filter(fecha_publicacion__isnull=True).order_by('fecha_creacion')
     return render(request, 'blog/post_draft_list.html', {'posts': posts})
+
+def post_publish(request, pk):
+    post = get_object_or_404(publicacion, pk=pk)
+    post.publish()
+    return redirect('detalle', pk=pk)

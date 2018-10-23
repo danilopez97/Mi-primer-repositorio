@@ -12,7 +12,7 @@ class publicacion(models.Model):
             blank=True, null=True)
 
 #procedimiento almacenado pero en funcion
-def publicar(self):
+    def publish(self):
         self.fecha_publicacion = timezone.now()
         self.save()
 
